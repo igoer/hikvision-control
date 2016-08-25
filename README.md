@@ -50,6 +50,8 @@ boolean getImgSavePath(String ip, String savepath)
 ```
 截取摄像机实时画面，ip为已经登陆的摄像机ip地址，savepath截取图片保存的具体目录位置。
 
+主意：该方法不会建立文件夹目录，如目录不存在需要自己建立。
+
 ```
 boolen cloudControl(String ip, CloudCode code1, CloudCode code2, CloudCode code3,)
 ```
