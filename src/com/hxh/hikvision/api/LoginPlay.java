@@ -1,7 +1,5 @@
 package com.hxh.hikvision.api;
 
-import org.apache.log4j.Logger;
-
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -18,8 +16,6 @@ public class LoginPlay {
 	 * 全局HCNetSDK对象
 	 */
 	public static HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
-	
-	private static Logger log = Logger.getLogger(LoginPlay.class);
 	
 	/**
 	 * 设备参数信息
@@ -49,40 +45,48 @@ public class LoginPlay {
 	/**
 	 * 登录到设备
 	 */
-	public boolean doLogin(String ip, short port, String username, String password){
+	public boolean doLogin(String ip, short port, String username, String password) throws Exception {
 		boolean initSuc = hCNetSDK.NET_DVR_Init();
 		if (initSuc != true){
-			log.error("hCNetSDK初始化失败!");
+			// hCNetSDK初始化失败
+			throw new Exception("init HCNetSDK error");
 		}
 	      
 		m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V30();
-		//获取用户句柄
+		// 获取用户句柄
 		lUserID = hCNetSDK.NET_DVR_Login_V30(ip, port, username, password, m_strDeviceInfo);
 		
 		long userID = lUserID.longValue();
 		if(userID == -1){
-			log.error(ip + " 登录失败!");
-			return false;
-		} else {
-			log.info(ip + " 登录成功!");
+			// 登录失败
+			throw new Exception("login error, check your username and password");
 		}
 		
-		//保存到登录缓存中, 下次不必再进行登录操作
-		//获取设备预览句柄
-		NativeLong lRealHandle = play();
-		//获取设备通道句柄
-		NativeLong lChannel = new NativeLong(getChannel());
-		//保存到缓存中
+		// 获取通道号
+		int chan = getChannel();
+		if(chan == -1) {
+			// 没有获取到通道号
+			throw new Exception("didn't get the channel");
+		}
+		
+		// 获取设备预览句柄
+		NativeLong lRealHandle = play(chan);
+		// 获取设备通道句柄
+		NativeLong lChannel = new NativeLong(chan);
+		// 保存到缓存中, 下次不必再进行登录操作
 		TempData.getTempData().setNativeLong(ip, lUserID, lRealHandle, lChannel);
 		
 		return true;
 	}
 	
 	/**
-	 * 获取设备通道
+	 * 获取设备通道  <br/>
+	 * 不支持IP通道返回-1 <br/>
+	 * 
+	 * @return
 	 */
-	private int getChannel(){
-		//获取IP接入配置参数
+	private int getChannel() {
+		// 获取IP接入配置参数
 		IntByReference ibrBytesReturned = new IntByReference(0);
         boolean bRet = false;
 
@@ -92,17 +96,16 @@ public class LoginPlay {
         bRet = hCNetSDK.NET_DVR_GetDVRConfig(lUserID, HCNetSDK.NET_DVR_GET_IPPARACFG, new NativeLong(0), lpIpParaConfig, m_strIpparaCfg.size(), ibrBytesReturned);
         m_strIpparaCfg.read();
         
+        // 设备是否支持IP通道, true为不支持
         if(!bRet){
-        	log.info("设备支持IP通道?  No");
         	for (int iChannum = 0; iChannum < m_strDeviceInfo.byChanNum; iChannum++) {
-        		log.info("通道号: " + iChannum + m_strDeviceInfo.byStartChan);
+        		System.out.println("通道号: " + iChannum + m_strDeviceInfo.byStartChan);
             }
         	if(m_strDeviceInfo.byChanNum > 0){
         		return Integer.valueOf(0 + m_strDeviceInfo.byStartChan);
         	}
-        } else {
-        	log.info("设备支持IP通道?  Yes");
         }
+        
         return -1;
 	}
 	
@@ -111,20 +114,12 @@ public class LoginPlay {
 	 * 
 	 * @return
 	 */
-	public NativeLong play(){
-		//获取通道号
-        int iChannelNum = getChannel();//通道号
-        if(iChannelNum == -1) {
-        	log.error("没有获取到预览通道!");
-            return null;
-        }
+	public NativeLong play(int chan) {
         
         m_strClientInfo = new HCNetSDK.NET_DVR_CLIENTINFO();
-        m_strClientInfo.lChannel = new NativeLong(iChannelNum);
+        m_strClientInfo.lChannel = new NativeLong(chan);
         
         lPreviewHandle = hCNetSDK.NET_DVR_RealPlay_V30(lUserID, m_strClientInfo, null, null, true);
-        log.info("获取预览 SUCCESS!");
-        
         return lPreviewHandle;
 	}
 	
