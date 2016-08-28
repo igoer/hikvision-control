@@ -7,7 +7,7 @@ import com.hxh.hikvision.api.LoginPlay;
 
 public class Main {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		LoginPlay lp = new LoginPlay();
 		lp.doLogin("218.206.13.27", (short)8000, "admin", "12345");
 		Control.getImgSavePath("218.206.13.27", "C://img/2.jpg");
