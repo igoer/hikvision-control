@@ -9,7 +9,7 @@ windows7，windows server目录如下：
 C:\Windows\System32
 ```
 当然你也可以自己定义库文件加载的路径，不过就需要修改`com.hxh.hikvision.api.HCNetSDK.java`中的如下代码：
-```
+```java
 HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary("path/HCNetSDK",HCNetSDK.class);
 ```
 其中path为HCNetSDK库文件的根目录绝对路径地址。
@@ -39,20 +39,20 @@ Control.cloudControl("218.206.13.27", CloudCode.PAN_LEFT, CloudCode.SPEED_LV6, C
 ```
 ##api说明
 ####LoginPlay
-```
+```java
 boolean doLogin(String ip, long port, String username, String password)
 ```
 登录到摄像机，登录成功后将会缓存该摄像机登录对象。后续的所有操作都必须建立在该摄像机已经登陆的前提下才能正确完成。
 
 ####Control
-```
+```java
 boolean getImgSavePath(String ip, String savepath)
 ```
 截取摄像机实时画面，ip为已经登陆的摄像机ip地址，savepath截取图片保存的具体目录位置。
 
 主意：该方法不会建立文件夹目录，如目录不存在需要自己建立。
 
-```
+```java
 boolen cloudControl(String ip, CloudCode code1, CloudCode code2, CloudCode code3,)
 ```
 摄像机云台控制，ip为已经登陆的摄像机ip地址，code1为云台控制方向，code2为云台运行速度，code3为控制是否为停止操作。
