@@ -18,7 +18,7 @@ HCNetSDK INSTANCE = (HCNetSDK) Native.loadLibrary("path/HCNetSDK",HCNetSDK.class
 将src-lib中的jar拷贝到项目lib目录中，将com.hxh.hikvision.api拷贝到项目源代码目录中。
 
 示例代码如下：
-```
+```java
 // 创建登录对象
 LoginPlay lp = new LoginPlay();
 // 输入摄像机ip，端口，账户，密码登录
