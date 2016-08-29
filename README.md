@@ -53,7 +53,7 @@ boolean getImgSavePath(String ip, String savepath)
 主意：该方法不会建立文件夹目录，如目录不存在需要自己建立。
 
 ```java
-boolen cloudControl(String ip, CloudCode code1, CloudCode code2, CloudCode code3,)
+boolean cloudControl(String ip, CloudCode code1, CloudCode code2, CloudCode code3,)
 ```
 摄像机云台控制，ip为已经登陆的摄像机ip地址，code1为云台控制方向，code2为云台运行速度，code3为控制是否为停止操作。
 
